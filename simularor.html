@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Football Simulation</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('https://cdn.akamai.steamstatic.com/steam/apps/1506830/ss_a744fe858eb67516e46bd045e165147d866a0dbd.1920x1080.jpg?t=1626015676') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+        }
+        .container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            width: 320px;
+        }
+        .container h1 {
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-family: 'Roboto', sans-serif;
+        }
+        .container input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #333;
+            font-family: 'Arial', sans-serif;
+        }
+        .container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            text-transform: uppercase;
+            margin-top: 10px;
+        }
+        .container button:hover {
+            background-color: #218838;
+        }
+        .result, .bet-container {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-family: 'Arial', sans-serif;
+        }
+        .points {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+            font-family: 'Roboto', sans-serif;
+        }
+        .shop-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            padding: 12px;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+        .shop-button:hover {
+            background-color: #0056b3;
+        }
+        .shop-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+        }
+        .shop-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            color: #555;
+        }
+        .shop-item {
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+        .shop-item img {
+            max-width: 100px;
+            border-radius: 5px;
+        }
+        .shop-item .name {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .shop-item .price {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .buy-button {
+            margin-top: 10px;
+            padding: 8px 16px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: 'Roboto', sans-serif;
+            text-transform: uppercase;
+        }
+        .buy-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simulador de Jogo de Futebol</h1>
+        <div class="points" id="pointsDisplay">Pontos: 0</div>
+        <input type="text" id="team1" placeholder="Nome do Time 1">
+        <input type="text" id="team2" placeholder="Nome do Time 2">
+        <button id="simulateButton" onclick="prepareBetting()">Simular Jogo</button>
+        <div class="bet-container" id="betContainer" style="display: none;">
+            <p>Em qual time deseja apostar?</p>
+            <button id="betTeam1"></button>
+            <button id="betTeam2"></button>
+        </div>
+        <div class="result" id="result"></div>
+        <button class="shop-button" onclick="openShop()">Abrir Loja</button>
+    </div>
+
+    <!-- Música de fundo -->
+    <div class="video-container">
+        <iframe width="0" height="0" src="https://www.youtube.com/embed/VIDEO_ID?autoplay=1&loop=1&playlist=VIDEO_ID" frameborder="0" allowfullscreen></iframe>
+    </div>
+
+    <!-- Frame da loja -->
+    <div class="shop-container" id="shopContainer">
+        <div class="shop-content">
+            <button class="close-button" onclick="closeShop()">&times;</button>
+            <h2>Loja</h2>
+            <div class="shop-item">
+                <img src="https://th.bing.com/th/id/OIP.xYLcaaitY58JTOCX-VpP0AHaEK?rs=1&pid=ImgDetMain" alt="Background EAFC 24">
+                <div class="name">Background EAFC 24</div>
+                <div class="price">Preço: 50 pontos</div>
+                <button class="buy-button" onclick="buyItem('Background EAFC 24', 50)">Comprar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let gameInterval;
+        let points = parseInt(localStorage.getItem('points')) || 0;
+
+        updatePointsDisplay();
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `Pontos: ${points}`;
+        }
+
+        function prepareBetting() {
+            const team1 = document.getElementById('team1').value;
+            const team2 = document.getElementById('team2').value;
+
+            if (!team1 || !team2) {
+                alert('Por favor, insira o nome dos dois times.');
+                return;
+            }
+
+            const betContainer = document.getElementById('betContainer');
+            const betTeam1Button = document.getElementById('betTeam1');
+            const betTeam2Button = document.getElementById('betTeam2');
+
+            const team1Points = Math.floor(Math.random() * 50) + 1;
+            const team2Points = Math.floor(Math.random() * 50) + 1;
+
+            betTeam1Button.textContent = `${team1} (Ganha ${team1Points} pontos)`;
+            betTeam2Button.textContent = `${team2} (Ganha ${team2Points} pontos)`;
+
+            betTeam1Button.onclick = () => simulateGame(team1, team2, 'team1', team1Points);
+            betTeam2Button.onclick = () => simulateGame(team1, team2, 'team2', team2Points);
+
+            betContainer.style.display = 'block';
+        }
+
+        function simulateGame(team1, team2, bet, betPoints) {
+            document.getElementById('betContainer').style.display = 'none';
+
+            clearInterval(gameInterval); // Clear any existing intervals
+            let score1 = 0;
+            let score2 = 0;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `${team1} ${score1} - ${score2} ${team2}`;
+
+            let minutes = 0;
+            document.getElementById('simulateButton').disabled = true;
+
+            gameInterval = setInterval(() => {
+                minutes += 1;
+
+                // Ajuste da probabilidade de gols para tornar mais realista
+                const goalChance1 = getGoalChance(team1, team2);
+                const goalChance2 = getGoalChance(team2, team1);
+
+                if (Math.random() < goalChance1) score1 += 1; // Chance de gol do Time 1
+                if (Math.random() < goalChance2) score2 += 1; // Chance de gol do Time 2
+
+                resultDiv.innerHTML = `Tempo: ${minutes} min<br>${team1} ${score1} - ${score2} ${team2}`;
+
+                if (minutes === 90) {
+                    clearInterval(gameInterval);
+                    resultDiv.innerHTML = `Fim do Jogo!<br>${team1} ${score1} - ${score2} ${team2}`;
+                    document.getElementById('simulateButton').disabled = false;
+
+                    if ((bet === 'team1' && score1 > score2) || (bet === 'team2' && score2 > score1)) {
+                        points += betPoints;
+                        localStorage.setItem('points', points);
+                        updatePointsDisplay();
+                    }
+                }
+            }, 100); // Atualiza a cada 100ms (simulando 1 minuto por segundo)
+
+            function getGoalChance(teamA, teamB) {
+                // Média de gols em jogos de futebol, ajustável conforme necessário
+                const goalsPerGame = 2.5;
+                const strengthA = 1; // Força do time A, ajustável
+                const strengthB = 1; // Força do time B, ajustável
+
+                const totalStrength = strengthA + strengthB;
+                const chanceA = (strengthA / totalStrength) * goalsPerGame / 90;
+                const chanceB = (strengthB / totalStrength) * goalsPerGame / 90;
+
+                // Retornar a chance de gol do time A contra o time B
+                if (teamA === team1 && teamB === team2) {
+                    return chanceA;
+                } else {
+                    return chanceB;
+                }
+            }
+        }
+
+        function openShop() {
+            document.getElementById('shopContainer').style.display = 'flex';
+        }
+
+        function closeShop() {
+            document.getElementById('shopContainer').style.display = 'none';
+        }
+
+        function buyItem(itemName, itemPrice) {
+            if (points >= itemPrice) {
+                // Deduzir pontos e atualizar a interface
+                points -= itemPrice;
+                localStorage.setItem('points', points);
+                updatePointsDisplay();
+                changeBackground();
+                closeShop();
+            } else {
+                alert('Você não tem pontos suficientes para comprar este item.');
+            }
+        }
+
+        function changeBackground() {
+            document.body.style.background = 'url(https://th.bing.com/th/id/OIP.xYLcaaitY58JTOCX-VpP0AHaEK?rs=1&pid=ImgDetMain) no-repeat center center fixed';
+            document.body.style.backgroundSize = 'cover';
+        }
+    </script>
+</body>
+</html>
